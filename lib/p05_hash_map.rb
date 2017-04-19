@@ -17,14 +17,9 @@ class HashMap
 
   def set(key, val)
     if include?(key)
-      @store[key.hash % num_buckets].each do |link|
-        if link.key == key
-          link.val = val
-          return link
-        end
-      end
+      bucket(key).update(key, val)
     else
-      resize! if @count == num_buckets
+      resize! if @count >= num_buckets
       bucket(key).append(key, val)
       @count += 1
     end
@@ -35,10 +30,9 @@ class HashMap
   end
 
   def delete(key)
-    if include?(key)
-      bucket(key).remove(key)
-      @count -= 1
-    end
+    removal = bucket(key).remove(key)
+    @count -= 1 if removal
+    removal
   end
 
   def each
